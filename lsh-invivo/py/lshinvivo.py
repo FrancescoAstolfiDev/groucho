@@ -26,13 +26,20 @@ from pickle import dump, load
 import xxhash
 
 
+def _xxh64(x, seed=0):
+    # xxhash >= 2.0 no longer accepts str: encode it as xxhash 1.x did
+    if isinstance(x, str):
+        x = x.encode('utf-8')
+    return xxhash.xxh64(x, seed=seed)
+
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # MINWISEHASHING
 
 def hash_family(i):
     def hash_member(x):
-        return xxhash.xxh64(x, seed=37 * (2 * i + 1)).hexdigest()
+        return _xxh64(x, seed=37 * (2 * i + 1)).hexdigest()
     return hash_member
 
 
@@ -77,8 +84,8 @@ def LSH_candidates(bucket, signature, b, r, n):
     i = 0
     while i < n:  # for each band
         column = signature[i:i + r]
-        #column_signature = xxhash.xxh64(str(column), seed=0).intdigest()
-        aux_column_signature = xxhash.xxh64(str(column), seed=0).intdigest()
+        #column_signature = _xxh64(str(column), seed=0).intdigest()
+        aux_column_signature = _xxh64(str(column), seed=0).intdigest()
 
         #for tc_ID in bucket[i][column_signature]:
         for tc_ID in bucket[i][aux_column_signature]:
@@ -102,7 +109,7 @@ def add_to_bucket(tc_ID, bucket, signature, b, r, n):
     i = 0
     while i < n:  # for each band
         column = signature[i:i + r]
-        column_signature = xxhash.xxh64(str(column), seed=0).intdigest()
+        column_signature = _xxh64(str(column), seed=0).intdigest()
 
         bucket[i][column_signature].add(tc_ID)
 
@@ -115,7 +122,7 @@ def get_signature(state, shingling=True):
         state_ = state[:]
         state_shingles = set()
         for i in range(len(state_) - k + 1):
-            state_shingles.add(xxhash.xxh64(state_[i:i + k], seed=0).intdigest())            
+            state_shingles.add(_xxh64(state_[i:i + k], seed=0).intdigest())            
         sig = state_minhashing(set(state_shingles), hashes)
     else:
         state_ = state[:].split()
