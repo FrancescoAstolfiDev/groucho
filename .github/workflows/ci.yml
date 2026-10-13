@@ -40,6 +40,13 @@ jobs:
           python3 --version
           pip --version
 
+      # Same Maven as the local WSL (Ubuntu 24.04 apt): the runner ships Maven 3.9, which rejects
+      # malformed POMs and resolves newer default plugin versions (e.g. surefire/failsafe vs old JUnit)
+      - name: Setup Maven 3.8.7
+        run: |
+          curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.8.7/binaries/apache-maven-3.8.7-bin.tar.gz | tar xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/apache-maven-3.8.7/bin" >> "$GITHUB_PATH"
+
       - name: Show toolchain
         run: |
           java -version
