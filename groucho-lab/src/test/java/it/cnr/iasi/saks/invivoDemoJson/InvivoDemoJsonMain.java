@@ -1,0 +1,32 @@
+/* 
+ * This file is part of the GROUCHO project.
+ * 
+ * GROUCHO is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * GROUCHO is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
+ *
+ */
+package it.cnr.iasi.saks.invivoDemoJson;
+
+public class InvivoDemoJsonMain {
+
+	public static void main(String[] args) throws NoSuchMethodException {
+		boolean annotato = Contatore.class.getMethod("incrementa_by_properties", int.class)
+				.isAnnotationPresent(it.cnr.iasi.saks.groucho.annotation.TestableInVivo.class);
+		System.out.println("incrementa() annotato dal JSON: " + annotato);
+
+		Contatore contatore = new Contatore();
+		System.out.println("Prima di incrementa(5): " + contatore.getValore());
+		contatore.incrementa_by_properties(5);
+		System.out.println("Dopo incrementa(5): " + contatore.getValore());
+	}
+}

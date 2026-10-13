@@ -1,0 +1,12 @@
+{
+  "lst" : [ {
+    "className" : "it.cnr.iasi.saks.invivoDemoJson.Contatore",
+    "methodName" : "incrementa_by_properties",
+    "annotation" : {
+      "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoJson.ContatoreInvivoTest",
+      "invivoTest" : "incrementaInvivoTest",
+      "carvingDepth" : 1,
+      "pauseOtherThreads" : false
+    }
+  } ]
+}

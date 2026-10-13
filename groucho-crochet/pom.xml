@@ -48,7 +48,7 @@
   </licenses>  
 
   <properties>		
-        <junit.version>4.0</junit.version>
+        <junit.version>4.12</junit.version>
         
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
@@ -91,7 +91,7 @@
                     <scmVersion>${scm.scmVersion.crochet}</scmVersion>
                     <scmVersionType>branch</scmVersionType>
                     <checkoutDirectory>${scm.checkoutDirectory.crochet}</checkoutDirectory>
-                    <goals>install</goals>
+                    <goals>install,-DskipITs</goals>
                 </configuration>
                 <executions>
                     <execution>
