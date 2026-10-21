@@ -1,19 +1,22 @@
 #!/bin/bash
 #
-# Lancia it.cnr.iasi.saks.invivoDemo.InvivoDemoMain sulla JRE di CROCHET con
+# Lancia it.cnr.iasi.saks.invivoDemoByAnnotation.InvivoDemoMain sulla JRE di CROCHET con
 # gli stessi argomenti usati da failsafe nel pom radice.
 #
 #   ./invivo-demo.sh           esecuzione normale
 #   ./invivo-demo.sh debug     la JVM si ferma e attende un debugger su localhost:5005
 #                              (IntelliJ: Run > Edit Configurations > Remote JVM Debug)
 #
-# Prerequisito: mvn -o -pl groucho-core verify (o almeno package + test-compile)
+# Prerequisito (con Java 8): mvn install -pl groucho-core,groucho-lab -DskipTests
+# Il Governance Manager e' LSHGovernanceManager: groucho-lsh-rest deve essere in esecuzione.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CROCHET="$ROOT/groucho-crochet/target"
 CORE="$ROOT/groucho-core/target"
+LAB="$ROOT/groucho-lab/target"
 CRIJ_JAR="$CROCHET/CRIJ-0.0.1-SNAPSHOT.jar"
 CORE_JAR="$CORE/groucho-core-1.0-SNAPSHOT.jar"
+JACKSON="$LAB/dependency/jackson-databind-2.11.0.jar:$LAB/dependency/jackson-core-2.11.0.jar:$LAB/dependency/jackson-annotations-2.11.0.jar"
 
 DEBUG_OPTS=""
 if [ "$1" == "debug" ]; then
@@ -26,6 +29,6 @@ exec "$CROCHET/jre-inst/bin/java" $DEBUG_OPTS \
 	-Xbootclasspath/p:"$CRIJ_JAR" \
 	-javaagent:"$CORE_JAR" \
 	-Xbootclasspath/p:"$CORE_JAR:$CORE/asm-all-5.0.3.jar:$CRIJ_JAR" \
-	-Dgroucho.config.file.location="$ROOT/groucho-core/src/test/resources/performanceOverheadTest_IT.properties" \
-	-cp "$CORE/test-classes:$CORE/classes" \
-	it.cnr.iasi.saks.invivoDemo.InvivoDemoMain
+	-Dgroucho.config.file.location="$ROOT/groucho-lab/src/test/resources/invivoDemoAnnotation/invivoDemoAnnotation.properties" \
+	-cp "$LAB/test-classes:$CORE/test-classes:$CORE/classes:$JACKSON" \
+	it.cnr.iasi.saks.invivoDemoByAnnotation.InvivoDemoMain

@@ -15,18 +15,22 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.invivoDemoJson;
+package it.cnr.iasi.saks.invivoDemoByJsonProperties;
 
 public class InvivoDemoJsonMain {
+
+	private static final int NUM_INCREMENTI = 10;
 
 	public static void main(String[] args) throws NoSuchMethodException {
 		boolean annotato = Contatore.class.getMethod("incrementa_by_properties", int.class)
 				.isAnnotationPresent(it.cnr.iasi.saks.groucho.annotation.TestableInVivo.class);
-		System.out.println("incrementa() annotato dal JSON: " + annotato);
+		System.out.println("incrementa_by_properties() annotato dal JSON: " + annotato);
 
 		Contatore contatore = new Contatore();
-		System.out.println("Prima di incrementa(5): " + contatore.getValore());
-		contatore.incrementa_by_properties(5);
-		System.out.println("Dopo incrementa(5): " + contatore.getValore());
+		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
+			System.out.println("Prima di incrementa_by_properties(" + delta + "): " + contatore.getValore());
+			contatore.incrementa_by_properties(delta);
+			System.out.println("Dopo incrementa_by_properties(" + delta + "): " + contatore.getValore());
+		}
 	}
 }

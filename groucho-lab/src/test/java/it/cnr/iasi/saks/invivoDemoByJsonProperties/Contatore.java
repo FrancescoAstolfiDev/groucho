@@ -15,19 +15,34 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.invivoDemo;
+package it.cnr.iasi.saks.invivoDemoByJsonProperties;
 
-import it.cnr.iasi.saks.groucho.callback.SimpleGovernanceManager;
-import it.cnr.iasi.saks.groucho.common.Context;
+import it.cnr.iasi.saks.invivoDemoCommon.ContatoreSottoTest;
 
-/**
- * Governance Manager di esempio: decide quando attivare una sessione in-vivo.
- * Qui la attiva solo per i test di questo package.
+/*
+ * Stessa classe della demo invivoDemoByAnnotation, ma SENZA @TestableInVivo:
+ * l'annotazione su incrementa_by_properties() viene aggiunta a runtime
+ * dall'agent di groucho-lab, leggendo src/test/resources/invivoDemoJson/model.json.
  */
-public class DemoGovernanceManager extends SimpleGovernanceManager {
+public class Contatore implements ContatoreSottoTest {
+
+	private int valore;
+
+	public Contatore() {
+		this.valore = 0;
+	}
+
+	public void incrementa_by_properties(int delta) {
+		this.aggiungi(delta);
+	}
 
 	@Override
-	public boolean evaluateActivation(Context context) {
-		return (context != null) && context.getInvivoTestClass().startsWith("it.cnr.iasi.saks.invivoDemo.");
+	public void aggiungi(int delta) {
+		this.valore = this.valore + delta;
+	}
+
+	@Override
+	public int getValore() {
+		return this.valore;
 	}
 }

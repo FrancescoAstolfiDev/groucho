@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Lancia it.cnr.iasi.saks.invivoDemoJson.InvivoDemoJsonMain sulla JRE di CROCHET
+# Lancia it.cnr.iasi.saks.invivoDemoByJsonProperties.InvivoDemoJsonMain sulla JRE di CROCHET
 # nella versione "JSON": Contatore non e' annotato nel sorgente, l'annotazione
 # @TestableInVivo viene aggiunta a runtime dall'agent di groucho-lab leggendo
 # src/test/resources/invivoDemoJson/model.json.
@@ -39,4 +39,4 @@ exec "$CROCHET/jre-inst/bin/java" $DEBUG_OPTS \
 	-Xbootclasspath/p:"$CORE_JAR:$CORE/asm-all-5.0.3.jar:$CRIJ_JAR" \
 	-Dgroucho.config.file.location="$ROOT/groucho-lab/src/test/resources/invivoDemoJson/invivoDemoJson.properties" \
 	-cp "$LAB/test-classes:$LAB/classes:$JACKSON" \
-	it.cnr.iasi.saks.invivoDemoJson.InvivoDemoJsonMain
+	it.cnr.iasi.saks.invivoDemoByJsonProperties.InvivoDemoJsonMain

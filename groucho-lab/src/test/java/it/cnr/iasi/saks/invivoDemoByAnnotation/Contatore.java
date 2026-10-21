@@ -15,15 +15,16 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.invivoDemo;
+package it.cnr.iasi.saks.invivoDemoByAnnotation;
 
 import it.cnr.iasi.saks.groucho.annotation.TestableInVivo;
+import it.cnr.iasi.saks.invivoDemoCommon.ContatoreSottoTest;
 
 /**
  * Classe sotto test (SUT): il metodo annotato con @TestableInVivo, quando
  * invocato, puo' attivare una sessione di test in-vivo.
  */
-public class Contatore {
+public class Contatore implements ContatoreSottoTest {
 
 	private int valore;
 
@@ -31,19 +32,17 @@ public class Contatore {
 		this.valore = 0;
 	}
 
-	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemo.ContatoreInvivoTest", invivoTest = "incrementaInvivoTest")
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "incrementaInvivoTest")
 	public void incrementa_annotated(int delta) {
 		this.aggiungi(delta);
 	}
 
-	/*
-	 * Logica non annotata: il test in-vivo deve invocare questa e non
-	 * incrementa(), altrimenti scatenerebbe una sessione in-vivo annidata.
-	 */
+	@Override
 	public void aggiungi(int delta) {
 		this.valore = this.valore + delta;
 	}
 
+	@Override
 	public int getValore() {
 		return this.valore;
 	}

@@ -15,29 +15,25 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.invivoDemo;
-
-import it.cnr.iasi.saks.groucho.config.PropertyUtil;
-import it.cnr.iasi.saks.groucho.tests.util.PropertyUtilNoSingleton;
+package it.cnr.iasi.saks.invivoDemoByAnnotation;
 
 /**
  * Entry point per eseguire/debuggare la demo fuori da Maven (es. da IntelliJ).
  * La JVM va lanciata con la JRE di CROCHET e con gli stessi argomenti che il
  * pom radice passa a failsafe (-agentpath, -javaagent, -Xbootclasspath/p, ...).
+ * Il Governance Manager (LSHGovernanceManager) e' indicato in
+ * src/test/resources/invivoDemoAnnotation/invivoDemoAnnotation.properties.
  */
 public class InvivoDemoMain {
 
-	private static final String GM_CLASSNAME = "it.cnr.iasi.saks.invivoDemo.DemoGovernanceManager";
+	private static final int NUM_INCREMENTI = 10;
 
 	public static void main(String[] args) {
-		PropertyUtilNoSingleton prop = PropertyUtilNoSingleton.getInstance();
-		prop.setProperty(PropertyUtil.GOVERNANCE_MANAGER_CLASS_LABEL, GM_CLASSNAME);
-
 		Contatore contatore = new Contatore();
-		System.out.println("Prima di incrementa(5): " + contatore.getValore());
-
-		contatore.incrementa_annotated(5);
-
-		System.out.println("Dopo incrementa(5): " + contatore.getValore());
+		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
+			System.out.println("Prima di incrementa_annotated(" + delta + "): " + contatore.getValore());
+			contatore.incrementa_annotated(delta);
+			System.out.println("Dopo incrementa_annotated(" + delta + "): " + contatore.getValore());
+		}
 	}
 }
