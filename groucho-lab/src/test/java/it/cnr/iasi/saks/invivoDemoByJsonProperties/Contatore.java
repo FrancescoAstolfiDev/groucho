@@ -36,9 +36,18 @@ public class Contatore implements ContatoreSottoTest {
 		this.aggiungi(delta);
 	}
 
+	public void raddoppia_by_properties() {
+		this.raddoppia();
+	}
+
 	@Override
 	public void aggiungi(int delta) {
 		this.valore = this.valore + delta;
+	}
+
+	@Override
+	public void raddoppia() {
+		this.valore = this.valore * 2;
 	}
 
 	@Override

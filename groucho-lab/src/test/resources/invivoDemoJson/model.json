@@ -8,5 +8,14 @@
       "carvingDepth" : 1,
       "pauseOtherThreads" : false
     }
+  }, {
+    "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
+    "methodName" : "raddoppia_by_properties",
+    "annotation" : {
+      "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
+      "invivoTest" : "raddoppiaInvivoTest",
+      "carvingDepth" : 1,
+      "pauseOtherThreads" : false
+    }
   } ]
 }

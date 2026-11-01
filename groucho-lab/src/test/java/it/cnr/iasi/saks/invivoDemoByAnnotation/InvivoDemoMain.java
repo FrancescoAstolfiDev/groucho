@@ -33,7 +33,12 @@ public class InvivoDemoMain {
 		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
 			System.out.println("Prima di incrementa_annotated(" + delta + "): " + contatore.getValore());
 			contatore.incrementa_annotated(delta);
+			contatore.raddoppia_annotated();
 			System.out.println("Dopo incrementa_annotated(" + delta + "): " + contatore.getValore());
 		}
+
+		System.out.println("Prima di raddoppia_annotated(): " + contatore.getValore());
+		contatore.raddoppia_annotated();
+		System.out.println("Dopo raddoppia_annotated(): " + contatore.getValore());
 	}
 }

@@ -37,9 +37,19 @@ public class Contatore implements ContatoreSottoTest {
 		this.aggiungi(delta);
 	}
 
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "raddoppiaInvivoTest")
+	public void raddoppia_annotated() {
+		this.raddoppia();
+	}
+
 	@Override
 	public void aggiungi(int delta) {
 		this.valore = this.valore + delta;
+	}
+
+	@Override
+	public void raddoppia() {
+		this.valore = this.valore * 2;
 	}
 
 	@Override

@@ -17,7 +17,6 @@
  */
 package it.cnr.iasi.saks.groucho.instrument;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -35,6 +34,7 @@ public class CrochetMethodVisitor extends MethodVisitor {
 	private String className;
 	private String methodName;
 	private Type[] methodSignature;
+	private String methodDescriptor;
 	
 	private TestableInVivoAnnotationVisitor annVisitor;
 	
@@ -42,12 +42,13 @@ public class CrochetMethodVisitor extends MethodVisitor {
 	private String invivoTestClass;
 	private String invivoTest;	
 	
-	public CrochetMethodVisitor(MethodVisitor mv, String className, String methodName, Type[] signature) {
+	public CrochetMethodVisitor(MethodVisitor mv, String className, String methodName, Type[] signature, String descriptor) {
 		super(Opcodes.ASM5, mv);
 
 		this.methodName = methodName;
 		this.className = className;
 		this.methodSignature = signature;
+		this.methodDescriptor = descriptor;
 		
 		this.annVisitor = null;
 		
@@ -118,8 +119,8 @@ public class CrochetMethodVisitor extends MethodVisitor {
 			mv.visitVarInsn(Opcodes.ALOAD, 0);
 			mv.visitLdcInsn(this.className);
 			mv.visitLdcInsn(this.methodName);
-			String signatureAsString = Arrays.toString(this.methodSignature);
-			mv.visitLdcInsn(signatureAsString);
+			// descrittore JVM completo (parametri e tipo di ritorno), es. "(I)V"
+			mv.visitLdcInsn(this.methodDescriptor);
 			mv.visitLdcInsn(this.invivoTestClass);
 			mv.visitLdcInsn(this.invivoTest);
 			mv.visitVarInsn(Opcodes.ALOAD, lstIndex);			
@@ -234,6 +235,7 @@ public class CrochetMethodVisitor extends MethodVisitor {
 		System.out.println("\t testing with: "+ testClass + ", " + testMethod);
 		
 		Context context = new Context(instObj, instClass, instMethod, testClass, testMethod);
+		context.setInstrumentedMethodDescriptor(instMethodSignature);
 
 		AbstractGovernanceManager gm = GovernanceManagerFactory.getInstance().getGovernanceManager();		
 //		if (gm.evaluateActivation(context)){
@@ -246,6 +248,7 @@ public class CrochetMethodVisitor extends MethodVisitor {
 		System.out.println("\t testing with: "+ testClass + ", " + testMethod);
 		
 		Context context = new Context(instObj, instClass, instMethod, testClass, testMethod);
+		context.setInstrumentedMethodDescriptor(instMethodSignature);
 		context.setOtherReferencesInContext(lstOtherReferencesInContext);
 
 		AbstractGovernanceManager gm = GovernanceManagerFactory.getInstance().getGovernanceManager();		
