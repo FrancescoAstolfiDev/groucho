@@ -32,12 +32,12 @@ public class Contatore implements ContatoreSottoTest {
 		this.valore = 0;
 	}
 
-	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "incrementaInvivoTest")
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "statoInvivoTest")
 	public void incrementa_annotated(int delta) {
 		this.aggiungi(delta);
 	}
 
-	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "raddoppiaInvivoTest")
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest", invivoTest = "statoInvivoTest")
 	public void raddoppia_annotated() {
 		this.raddoppia();
 	}

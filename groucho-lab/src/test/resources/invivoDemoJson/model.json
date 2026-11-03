@@ -1,21 +1,24 @@
 {
-  "lst" : [ {
-    "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
-    "methodName" : "incrementa_by_properties",
-    "annotation" : {
-      "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
-      "invivoTest" : "incrementaInvivoTest",
-      "carvingDepth" : 1,
-      "pauseOtherThreads" : false
+  "lst" : [
+    {
+      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
+      "methodName" : "incrementa_by_properties",
+      "annotation" : {
+        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
+        "invivoTest" : "statoInvivoTest",
+        "carvingDepth" : 1,
+        "pauseOtherThreads" : false
+      }
+    },
+    {
+      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
+      "methodName" : "raddoppia_by_properties",
+      "annotation" : {
+        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
+        "invivoTest" : "statoInvivoTest",
+        "carvingDepth" : 1,
+        "pauseOtherThreads" : false
+      }
     }
-  }, {
-    "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
-    "methodName" : "raddoppia_by_properties",
-    "annotation" : {
-      "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
-      "invivoTest" : "raddoppiaInvivoTest",
-      "carvingDepth" : 1,
-      "pauseOtherThreads" : false
-    }
-  } ]
+  ]
 }

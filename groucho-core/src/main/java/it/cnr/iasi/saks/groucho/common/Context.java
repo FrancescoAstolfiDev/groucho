@@ -25,7 +25,6 @@ public class Context {
 	private Object instrumentedObject;
 	private String instrumentedClassName;
 	private String instrumentedMethodName;
-	private String instrumentedMethodDescriptor;
 	
 	private String invivoTestClass;
 	private String invivoTest;
@@ -78,18 +77,6 @@ public class Context {
 		return instrumentedMethodName;
 	}
 
-	/**
-	 * Descrittore JVM completo del metodo strumentato, parametri e tipo di ritorno
-	 * (es. "(I)V" per void m(int)): distingue metodi con lo stesso nome ma firma diversa.
-	 */
-	public String getInstrumentedMethodDescriptor() {
-		return instrumentedMethodDescriptor;
-	}
-
-	public void setInstrumentedMethodDescriptor(String instrumentedMethodDescriptor) {
-		this.instrumentedMethodDescriptor = instrumentedMethodDescriptor;
-	}
-
 	public String getInvivoTestClass() {
 		return invivoTestClass;
 	}
@@ -104,11 +91,6 @@ public class Context {
 
 	public int getMaxCarvingDepth() {
 		return maxCarvingDepth;
-	}
-
-	public String getInvocationKey() {
-		return instrumentedClassName + "#" + instrumentedMethodName + instrumentedMethodDescriptor;
-		// es. it/cnr/iasi/saks/invivoDemoByAnnotation/Contatore#raddoppia_annotated()V
 	}
 
 }

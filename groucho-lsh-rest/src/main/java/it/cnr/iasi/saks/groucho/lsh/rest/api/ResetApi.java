@@ -36,7 +36,19 @@ import javax.annotation.Generated;
 @Api(value = "reset", description = "the reset API")
 public interface ResetApi {
 
-    @ApiOperation(value = "Suggest to Restore the State of the Observer to the Default Configurations.", nickname = "resetStateObserver", notes = "Suggest to Restore the State of the Observer to the Default Configurations. It is only a suggestion, there is no commitment from the receiver.", tags={ "resetStateObserver", })
+    @ApiOperation(value = "Suggest to Restore the State of the Observer to the Default Configurations.", nickname = "resetStateObserver", notes = "Suggest to Restore the State of the Observer to the Default Configurations. It is only a suggestion, there is no commitment from the receiver. The current implementation deletes the bucket in the working directory of the server.\n"
+            + "\n"
+            + "**Request**: no parameters, no body.\n"
+            + "\n"
+            + "**Response** (`application/json`): `true` on success, HTTP 404 on error.\n"
+            + "\n"
+            + "**Example**\n"
+            + "\n"
+            + "```\n"
+            + "curl -X PUT 'http://localhost:8080/groucho-state-observer/reset'\n"
+            + "\n"
+            + "true\n"
+            + "```", tags={ "resetStateObserver", })
     @ApiResponses(value = { 
         @ApiResponse(code = 200, message = "Successful Operation."),
         @ApiResponse(code = 400, message = "Reset Not Allowed."),

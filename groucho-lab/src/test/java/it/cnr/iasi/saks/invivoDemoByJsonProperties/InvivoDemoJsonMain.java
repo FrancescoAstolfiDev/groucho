@@ -30,12 +30,10 @@ public class InvivoDemoJsonMain {
 		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
 			System.out.println("Prima di incrementa_by_properties(" + delta + "): " + contatore.getValore());
 			contatore.incrementa_by_properties(delta);
-			contatore.raddoppia_by_properties();
 			System.out.println("Dopo incrementa_by_properties(" + delta + "): " + contatore.getValore());
+			System.out.println("Prima di raddoppia_by_properties(): " + contatore.getValore());
+			contatore.raddoppia_by_properties();
+			System.out.println("Dopo raddoppia_by_properties(): " + contatore.getValore());
 		}
-
-		System.out.println("Prima di raddoppia_by_properties(): " + contatore.getValore());
-		contatore.raddoppia_by_properties();
-		System.out.println("Dopo raddoppia_by_properties(): " + contatore.getValore());
 	}
 }
