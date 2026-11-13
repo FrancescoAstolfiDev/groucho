@@ -23,7 +23,7 @@ CRIJ_JAR="$CROCHET/CRIJ-0.0.1-SNAPSHOT.jar"
 CORE_JAR="$CORE/groucho-core-1.0-SNAPSHOT.jar"
 LAB_JAR="$LAB/groucho-lab-1.0-SNAPSHOT.jar"
 JACKSON="$LAB/dependency/jackson-databind-2.11.0.jar:$LAB/dependency/jackson-core-2.11.0.jar:$LAB/dependency/jackson-annotations-2.11.0.jar"
-# Client REST di groucho-lsh-rest e sue dipendenze, usati da LSHGovernanceManager
+# Client REST di groucho-lsh-rest e sue dipendenze, usati dai Governance Manager
 LSH_CLIENT="$ROOT/groucho-lsh-rest/target/groucho-lsh-rest-1.0-SNAPSHOT.jar:$ROOT/lsh-invivo/target/lsh-invivo-1.0-SNAPSHOT.jar"
 for dep in spring-web-5.2.5.RELEASE spring-core-5.2.5.RELEASE spring-beans-5.2.5.RELEASE spring-jcl-5.2.5.RELEASE threetenbp-1.3.1 jackson-datatype-threetenbp-2.6.4; do
 	LSH_CLIENT="$LSH_CLIENT:$LAB/dependency/$dep.jar"

@@ -21,7 +21,7 @@ package it.cnr.iasi.saks.invivoDemoByAnnotation;
  * Entry point per eseguire/debuggare la demo fuori da Maven (es. da IntelliJ).
  * La JVM va lanciata con la JRE di CROCHET e con gli stessi argomenti che il
  * pom radice passa a failsafe (-agentpath, -javaagent, -Xbootclasspath/p, ...).
- * Il Governance Manager (LSHGovernanceManager) e' indicato in
+ * Il Governance Manager e' indicato in
  * src/test/resources/invivoDemoAnnotation/invivoDemoAnnotation.properties.
  */
 public class InvivoDemoMain {
