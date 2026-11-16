@@ -15,38 +15,29 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.groucho.lsh;
+package it.cnr.iasi.saks.groucho.gm_history;
 
 import it.cnr.iasi.saks.groucho.lsh.exceptions.LSHException;
-import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverLSHRestClient;
+import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClient;
 import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
- * Invia al server, tramite gli endpoint LSH, un hash dello stato carvato calcolato lato client.
+ * Invia al server lo stato carvato cosi' com'e'.
  */
-public class GovernanceManagerByHistory_HASH extends AbstractGovernanceManagerHistory {
+public class GovernanceManagerBasic extends AbstractGovernanceManagerHistory {
 
-	private final StateObserverLSHRestClient client;
+	private final StateObserverRestClient client;
 
-	public GovernanceManagerByHistory_HASH() {
+	public GovernanceManagerBasic() {
 		super();
-		StateObserverRestClientFactory factory = new StateObserverRestClientFactory();
-		this.client = (StateObserverLSHRestClient) factory.getStateObserverLSH();
+		StateObserverRestClientFactory factory = createClientFactory();
+		this.client = (StateObserverRestClient) factory.getStateObserver();
 	}
 
-	/**
-	 * Calcola un hash FNV-1a a 64 bit dello stato. Il valore e' stabile fra JVM
-	 * diverse, perche' il server conserva su disco gli stati visti, e contiene solo
-	 * cifre esadecimali, quindi puo' viaggiare nel path degli endpoint LSH.
-	 */
 	@Override
 	protected String processState(String carvedState) {
-		long hash = 0xcbf29ce484222325L;
-		for (int index = 0; index < carvedState.length(); index++) {
-			hash ^= carvedState.charAt(index);
-			hash *= 0x100000001b3L;
-		}
-		return String.format("%016x", hash);
+
+		return carvedState;
 	}
 
 	@Override

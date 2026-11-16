@@ -15,7 +15,7 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.groucho.lsh;
+package it.cnr.iasi.saks.groucho.gm_history;
 
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;

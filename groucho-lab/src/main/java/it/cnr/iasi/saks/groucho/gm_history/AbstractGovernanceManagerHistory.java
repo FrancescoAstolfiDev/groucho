@@ -15,12 +15,14 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.groucho.lsh;
+package it.cnr.iasi.saks.groucho.gm_history;
 
 import it.cnr.iasi.saks.groucho.callback.SimpleGovernanceManager;
 import it.cnr.iasi.saks.groucho.common.Context;
 import it.cnr.iasi.saks.groucho.common.StateCarver;
+import it.cnr.iasi.saks.groucho.config.PropertyUtil;
 import it.cnr.iasi.saks.groucho.lsh.exceptions.LSHException;
+import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
  * Governance Manager basato sulla storia degli stati osservati: la sessione
@@ -74,6 +76,23 @@ public abstract class AbstractGovernanceManagerHistory extends SimpleGovernanceM
 		boolean isUnknown = this.isStateUnknown(processedState);
 		System.out.println(this.tag() + "stato: " + carvedState + " -> nuovo: " + isUnknown);
 		return isUnknown;
+	}
+
+	/**
+	 * Crea la factory dei client REST verso il server groucho-lsh-rest. L'indirizzo del server
+	 * e' letto da {@value PropertyUtil#LSH_REST_CLIENT_URL_BASE_PATH_LABEL}, prima fra le proprieta'
+	 * di sistema (-D sulla riga di comando) e poi nel file di configurazione di groucho; se assente
+	 * si usa l'indirizzo predefinito del client (http://localhost:8080/groucho-state-observer).
+	 */
+	protected static StateObserverRestClientFactory createClientFactory() {
+		String urlBasePath = System.getProperty(PropertyUtil.LSH_REST_CLIENT_URL_BASE_PATH_LABEL);
+		if ((urlBasePath == null) || urlBasePath.trim().isEmpty()) {
+			urlBasePath = PropertyUtil.getInstance().getProperty(PropertyUtil.LSH_REST_CLIENT_URL_BASE_PATH_LABEL);
+		}
+		if ((urlBasePath == null) || urlBasePath.trim().isEmpty()) {
+			return new StateObserverRestClientFactory();
+		}
+		return new StateObserverRestClientFactory(urlBasePath.trim());
 	}
 
 	/** @return il prefisso delle righe stampate da questo manager. */
