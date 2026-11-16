@@ -28,8 +28,12 @@ fi
 mkdir -p "$DATA_DIR"
 cd "$DATA_DIR"
 
-# shellcheck disable=SC1091
-source "$G/lsh-invivo/.venv/bin/activate"
+# Optional local virtualenv: jep and xxhash are already installed by the build in
+# lsh-invivo/target/jep-inst (on PYTHONPATH below), so CI runs without it
+if [ -f "$G/lsh-invivo/.venv/bin/activate" ]; then
+	# shellcheck disable=SC1091
+	source "$G/lsh-invivo/.venv/bin/activate"
+fi
 
 echo "TEST groucho-lsh-rest on http://localhost:$PORT/groucho-state-observer (data in $DATA_DIR)"
 PYTHONPATH="$G/lsh-invivo/target/jep-inst" exec java \

@@ -2,7 +2,7 @@ name: Build & Test (JDK 8)
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "feature/**" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
@@ -53,7 +53,10 @@ jobs:
           echo "JAVA_HOME=$JAVA_HOME"
           mvn -v
 
-      # Full build, unit tests (surefire) and integration tests (failsafe) of every module
+      # Full build, unit tests (surefire) and integration tests (failsafe) of every module.
+      # In groucho-lab, failsafe also runs the history-based Governance Manager tests
+      # (gm_history/*Test_IT): they start their own groucho-lsh-rest instance on port 8081
+      # in @BeforeClass and stop it in @AfterClass
       - name: Build and test
         run: mvn -B -ntp clean install
 
@@ -77,4 +80,5 @@ jobs:
           path: |
             **/target/surefire-reports/
             **/target/failsafe-reports/
+            groucho-lab/target/lsh-test-server.log
           if-no-files-found: ignore
