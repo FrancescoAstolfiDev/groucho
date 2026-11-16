@@ -1,20 +1,20 @@
 {
   "lst" : [
     {
-      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
+      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Counter",
       "methodName" : "incrementa_by_properties",
       "annotation" : {
-        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
+        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.CounterInvivoTest",
         "invivoTest" : "statoInvivoTest",
         "carvingDepth" : 1,
         "pauseOtherThreads" : false
       }
     },
     {
-      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Contatore",
+      "className" : "it.cnr.iasi.saks.invivoDemoByJsonProperties.Counter",
       "methodName" : "raddoppia_by_properties",
       "annotation" : {
-        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.ContatoreInvivoTest",
+        "invivoTestClass" : "it.cnr.iasi.saks.invivoDemoCommon.CounterInvivoTest",
         "invivoTest" : "statoInvivoTest",
         "carvingDepth" : 1,
         "pauseOtherThreads" : false

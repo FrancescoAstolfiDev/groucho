@@ -18,10 +18,10 @@
 package it.cnr.iasi.saks.invivoDemoByAnnotation;
 
 /**
- * Entry point per eseguire/debuggare la demo fuori da Maven (es. da IntelliJ).
- * La JVM va lanciata con la JRE di CROCHET e con gli stessi argomenti che il
- * pom radice passa a failsafe (-agentpath, -javaagent, -Xbootclasspath/p, ...).
- * Il Governance Manager e' indicato in
+ * Entry point to run/debug the demo outside Maven (e.g. from IntelliJ).
+ * The JVM must be started with the CROCHET JRE and with the same arguments the
+ * root pom passes to failsafe (-agentpath, -javaagent, -Xbootclasspath/p, ...).
+ * The Governance Manager is set in
  * src/test/resources/invivoDemoAnnotation/invivoDemoAnnotation.properties.
  */
 public class InvivoDemoMain {
@@ -29,14 +29,14 @@ public class InvivoDemoMain {
 	private static final int NUM_INCREMENTI = 10;
 
 	public static void main(String[] args) {
-		Contatore contatore = new Contatore();
+		Counter contatore = new Counter();
 		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
-			System.out.println("Prima di incrementa_annotated(" + delta + "): " + contatore.getValore());
+			System.out.println("Before incrementa_annotated(" + delta + "): " + contatore.getValore());
 			contatore.incrementa_annotated(delta);
-			System.out.println("Dopo incrementa_annotated(" + delta + "): " + contatore.getValore());
-//			System.out.println("Prima di raddoppia_annotated(): " + contatore.getValore());
+			System.out.println("After incrementa_annotated(" + delta + "): " + contatore.getValore());
+//			System.out.println("Before raddoppia_annotated(): " + contatore.getValore());
 //			contatore.raddoppia_annotated();
-//			System.out.println("Dopo raddoppia_annotated(): " + contatore.getValore());
+//			System.out.println("After raddoppia_annotated(): " + contatore.getValore());
 		}
 	}
 }

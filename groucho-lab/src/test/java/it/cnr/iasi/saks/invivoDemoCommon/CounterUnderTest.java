@@ -18,16 +18,16 @@
 package it.cnr.iasi.saks.invivoDemoCommon;
 
 /**
- * Cio' che il test in-vivo comune usa dei due Contatore (versione annotata e
- * versione JSON). E' un'interfaccia e non una superclasse perche' StateCarver
- * legge solo i campi dichiarati nella classe concreta: il campo "valore" deve
- * restare in ciascun Contatore, altrimenti lo stato carvato sarebbe vuoto.
+ * What the shared in-vivo test uses of the two Counter classes (annotated version
+ * and JSON version). It is an interface and not a superclass because StateCarver
+ * reads only the fields declared in the concrete class: the "valore" field must
+ * stay in each Counter, otherwise the carved state would be empty.
  */
-public interface ContatoreSottoTest {
+public interface CounterUnderTest {
 
 	/*
-	 * Logica non strumentata: il test in-vivo deve invocare questa e non il
-	 * metodo marcato come in-vivo, altrimenti scatenerebbe una sessione annidata.
+	 * Non-instrumented logic: the in-vivo test must invoke this one and not the
+	 * method marked as in-vivo, otherwise it would trigger a nested session.
 	 */
 	void aggiungi(int delta);
 

@@ -25,11 +25,11 @@ import it.cnr.iasi.saks.groucho.lsh.exceptions.LSHException;
 import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
- * Governance Manager basato sulla storia degli stati osservati: la sessione
- * in-vivo viene attivata solo se lo stato carvato non risulta gia' visto.
+ * Governance Manager based on the history of the observed states: the in-vivo
+ * session is activated only if the carved state has not been seen before.
  *
- * Le sottoclassi scelgono come rappresentare lo stato e con quale client
- * interrogare il server groucho-lsh-rest.
+ * Subclasses choose how to represent the state and which client to use to
+ * query the groucho-lsh-rest server.
  */
 public abstract class AbstractGovernanceManagerHistory extends SimpleGovernanceManager {
 
@@ -52,37 +52,37 @@ public abstract class AbstractGovernanceManagerHistory extends SimpleGovernanceM
 			this.processedState = this.processState(carvedState);
 			return this.decideActivation(carvedState, this.processedState);
 		} catch (Exception e) {
-			// server non raggiungibile o errore: nessuna sessione in-vivo
-			System.out.println(this.tag() + "errore verso il server: " + e);
+			// server unreachable or error: no in-vivo session
+			System.out.println(this.tag() + "server error: " + e);
 			return false;
 		}
 	}
 
 	/**
-	 * Cattura lo stato da valutare. Di default usa lo StateCarver su tutti i campi
-	 * dell'oggetto instrumentato; le sottoclassi possono costruire uno stato diverso.
+	 * Captures the state to evaluate. By default it runs the StateCarver on all the fields
+	 * of the instrumented object; subclasses may build a different state.
 	 *
-	 * @return lo stato, oppure null se questa chiamata non va valutata
+	 * @return the state, or null if this invocation must not be evaluated
 	 */
 	protected String carveState(Context context) throws ClassNotFoundException {
 		return new StateCarver(context).carveAllFields();
 	}
 
 	/**
-	 * Decide se attivare la sessione per lo stato catturato. Di default la attiva
-	 * solo se il server considera lo stato nuovo.
+	 * Decides whether to activate the session for the captured state. By default it
+	 * activates it only if the server considers the state new.
 	 */
 	protected boolean decideActivation(String carvedState, String processedState) throws LSHException {
 		boolean isUnknown = this.isStateUnknown(processedState);
-		System.out.println(this.tag() + "stato: " + carvedState + " -> nuovo: " + isUnknown);
+		System.out.println(this.tag() + "state: " + carvedState + " -> new: " + isUnknown);
 		return isUnknown;
 	}
 
 	/**
-	 * Crea la factory dei client REST verso il server groucho-lsh-rest. L'indirizzo del server
-	 * e' letto da {@value PropertyUtil#LSH_REST_CLIENT_URL_BASE_PATH_LABEL}, prima fra le proprieta'
-	 * di sistema (-D sulla riga di comando) e poi nel file di configurazione di groucho; se assente
-	 * si usa l'indirizzo predefinito del client (http://localhost:8080/groucho-state-observer).
+	 * Creates the factory of the REST clients for the groucho-lsh-rest server. The server address
+	 * is read from {@value PropertyUtil#LSH_REST_CLIENT_URL_BASE_PATH_LABEL}, first among the system
+	 * properties (-D on the command line) and then in the groucho configuration file; when it is
+	 * missing, the default client address is used (http://localhost:8080/groucho-state-observer).
 	 */
 	protected static StateObserverRestClientFactory createClientFactory() {
 		String urlBasePath = System.getProperty(PropertyUtil.LSH_REST_CLIENT_URL_BASE_PATH_LABEL);
@@ -95,7 +95,7 @@ public abstract class AbstractGovernanceManagerHistory extends SimpleGovernanceM
 		return new StateObserverRestClientFactory(urlBasePath.trim());
 	}
 
-	/** @return il prefisso delle righe stampate da questo manager. */
+	/** @return the prefix of the lines printed by this manager. */
 	protected String tag() {
 		return "[" + this.getClass().getSimpleName() + "] ";
 	}
@@ -106,15 +106,15 @@ public abstract class AbstractGovernanceManagerHistory extends SimpleGovernanceM
 		try {
 			this.markState(this.processedState);
 		} catch (LSHException e) {
-			// Non si rilancia: un'eccezione qui salterebbe il rollback della sessione
-			// e lascerebbe in pausa gli altri thread.
-			System.out.println(this.tag() + "stato non registrato: " + e);
+			// Not rethrown: an exception here would skip the rollback of the session
+			// and leave the other threads paused.
+			System.out.println(this.tag() + "state not marked: " + e);
 		}
 	}
 
 	/**
-	 * @param carvedState lo stato prodotto dallo StateCarver
-	 * @return la rappresentazione dello stato da inviare al server
+	 * @param carvedState the state produced by the StateCarver
+	 * @return the representation of the state to send to the server
 	 */
 	protected abstract String processState(String carvedState);
 

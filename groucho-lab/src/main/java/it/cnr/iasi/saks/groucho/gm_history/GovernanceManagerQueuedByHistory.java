@@ -27,39 +27,39 @@ import it.cnr.iasi.saks.groucho.config.PropertyUtil;
 import it.cnr.iasi.saks.groucho.lsh.exceptions.LSHException;
 
 /**
- * Governance Manager con coda di richieste di dimensione k e due possibili
- * politiche di attivazione:
+ * Governance Manager with a request queue of size k and two possible
+ * activation policies:
  * <ul>
- * <li>se riceve una probabilita' p, attiva la sessione in-vivo con probabilita' p;</li>
- * <li>altrimenti usa lo storico LSH ereditato da {@link GovernanceManagerBasic}
- * (attiva solo per stati non ancora visti).</li>
+ * <li>when given a probability p, it activates the in-vivo session with probability p;</li>
+ * <li>otherwise it uses the LSH history inherited from {@link GovernanceManagerBasic}
+ * (it activates only for states not seen yet).</li>
  * </ul>
  *
- * Coda: nel Governance Manager di base una richiesta che arriva mentre e' in corso
- * un'altra sessione viene scartata. Qui viene invece messa in una coda limitata a k
- * elementi (se la coda e' piena viene scartata). Un solo thread alla volta serve la coda,
- * eseguendo una sessione per ogni richiesta in ordine di arrivo. La politica di attivazione
- * e' valutata al momento dell'esecuzione.
+ * Queue: in the base Governance Manager a request arriving while another session is
+ * running is dropped. Here it is put in a queue bounded to k elements instead (if the
+ * queue is full it is dropped). Only one thread at a time serves the queue, running one
+ * session per request in arrival order. The activation policy is evaluated when the
+ * session is run.
  *
- * Attesa (predefinita): il thread che accoda resta fermo finche' la sua richiesta non e'
- * stata servita; se nel frattempo nessuno serve la coda, la serve lui. Ogni thread ha quindi
- * al massimo una richiesta in coda, e non va avanti prima che la sessione sia finita: lo stato
- * testato e' quello del momento della richiesta, salvo modifiche fatte da altri thread.
- * Senza attesa il thread accoda e prosegue: la coda contiene i Context, che riferiscono gli
- * oggetti vivi, e la sessione vede lo stato che l'oggetto ha quando la richiesta viene servita.
+ * Waiting (default): the thread that enqueues stays blocked until its request has been
+ * served; if meanwhile nobody is serving the queue, it serves the queue itself. Each thread
+ * therefore has at most one request in the queue, and does not go on before the session is
+ * over: the tested state is the one at the time of the request, unless other threads change it.
+ * Without waiting the thread enqueues and goes on: the queue holds the Contexts, which refer
+ * to the live objects, so the session sees the state the object has when the request is served.
  *
- * Il GovernanceManagerFactory crea l'istanza con il costruttore senza argomenti, che
- * legge i parametri prima dalle proprieta' di sistema (-D sulla riga di comando) e poi
- * dal file di configurazione di groucho:
+ * The GovernanceManagerFactory creates the instance with the no-argument constructor, which
+ * reads the parameters first from the system properties (-D on the command line) and then
+ * from the groucho configuration file:
  * <ul>
- * <li>{@value #ACTIVATION_PROBABILITY_LABEL}: probabilita' in [0,1]; se assente si usa LSH;</li>
- * <li>{@value #ACTIVATION_SEED_LABEL}: seed delle estrazioni casuali, per renderle ripetibili;</li>
- * <li>{@value #QUEUE_SIZE_LABEL}: k &gt;= 1; se assente vale {@value #DEFAULT_QUEUE_SIZE};</li>
- * <li>{@value #QUEUE_WAIT_LABEL}: true (predefinito) o false, se chi accoda attende la propria sessione.</li>
+ * <li>{@value #ACTIVATION_PROBABILITY_LABEL}: probability in [0,1]; when missing LSH is used;</li>
+ * <li>{@value #ACTIVATION_SEED_LABEL}: seed of the random draws, to make them repeatable;</li>
+ * <li>{@value #QUEUE_SIZE_LABEL}: k &gt;= 1; when missing it is {@value #DEFAULT_QUEUE_SIZE};</li>
+ * <li>{@value #QUEUE_WAIT_LABEL}: true (default) or false, whether the enqueuing thread waits for its session.</li>
  * </ul>
  *
- * Log: a ogni richiesta accodata e a ogni richiesta presa dalla coda viene stampata la riga
- * "in coda: n/k", con il numero di richieste in coda in quel momento.
+ * Log: for every enqueued request and every request taken from the queue the line
+ * "queued: n/k" is printed, with the number of requests in the queue at that moment.
  */
 public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 
@@ -69,17 +69,17 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	public static final String QUEUE_WAIT_LABEL = "groucho.lab.governance.queue.wait";
 	public static final int DEFAULT_QUEUE_SIZE = 10;
 
-	/** Richiesta in coda: il Context e il segnale di richiesta servita. */
+	/** Queued request: the Context and the "request served" signal. */
 	private static final class Request {
 		private final Context context;
-		private boolean served = false; // protetto da drainerLock
+		private boolean served = false; // guarded by drainerLock
 
 		private Request(Context context) {
 			this.context = context;
 		}
 	}
 
-	/** null: attivazione tramite storico LSH. */
+	/** null: activation through the LSH history. */
 	private final Float activationProbability;
 	private final Random random;
 
@@ -87,7 +87,7 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	private final boolean waitForService;
 	private final BlockingQueue<Request> queue;
 
-	/** Thread che sta servendo la coda, null se nessuno. Monitor anche per le attese. */
+	/** Thread serving the queue, null if none. Also used as the monitor for the waits. */
 	private Thread drainer = null;
 	private final Object drainerLock = new Object();
 
@@ -95,69 +95,69 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	private final AtomicLong droppedRequests = new AtomicLong();
 	private final AtomicLong servedRequests = new AtomicLong();
 
-	/** Istante in cui e' stata decisa l'attivazione della sessione in corso, -1 se nessuna. Solo il thread servente lo usa. */
+	/** Instant when the activation of the running session was decided, -1 if none. Only the serving thread uses it. */
 	private long sessionActivatedAt = -1;
 
-	/** Costruttore usato dal GovernanceManagerFactory: parametri dalla configurazione. */
+	/** Constructor used by the GovernanceManagerFactory: parameters from the configuration. */
 	public GovernanceManagerQueuedByHistory() {
 		this(readProbability(), readQueueSize(), readSeed(), readWait());
 	}
 
-	/** Attivazione tramite storico LSH, coda di dimensione k. */
+	/** Activation through the LSH history, queue of size k. */
 	public GovernanceManagerQueuedByHistory(int k) {
 		this(null, k);
 	}
 
 	/**
-	 * @param probability probabilita' di attivazione in [0,1], oppure null per usare lo storico LSH
-	 * @param k dimensione della coda (&gt;= 1)
+	 * @param probability activation probability in [0,1], or null to use the LSH history
+	 * @param k size of the queue (&gt;= 1)
 	 */
 	public GovernanceManagerQueuedByHistory(Float probability, int k) {
 		this(probability, k, null);
 	}
 
 	/**
-	 * @param probability probabilita' di attivazione in [0,1], oppure null per usare lo storico LSH
-	 * @param k dimensione della coda (&gt;= 1)
-	 * @param seed seed delle estrazioni casuali, oppure null per un seed qualsiasi
+	 * @param probability activation probability in [0,1], or null to use the LSH history
+	 * @param k size of the queue (&gt;= 1)
+	 * @param seed seed of the random draws, or null for an arbitrary seed
 	 */
 	public GovernanceManagerQueuedByHistory(Float probability, int k, Long seed) {
 		this(probability, k, seed, true);
 	}
 
 	/**
-	 * @param probability probabilita' di attivazione in [0,1], oppure null per usare lo storico LSH
-	 * @param k dimensione della coda (&gt;= 1)
-	 * @param seed seed delle estrazioni casuali, oppure null per un seed qualsiasi
-	 * @param waitForService true se chi accoda resta fermo finche' la sua richiesta non e' servita
+	 * @param probability activation probability in [0,1], or null to use the LSH history
+	 * @param k size of the queue (&gt;= 1)
+	 * @param seed seed of the random draws, or null for an arbitrary seed
+	 * @param waitForService true if the enqueuing thread stays blocked until its request is served
 	 */
 	public GovernanceManagerQueuedByHistory(Float probability, int k, Long seed, boolean waitForService) {
 		super();
 		if ((probability != null) && ((probability < 0f) || (probability > 1f))) {
-			throw new IllegalArgumentException("probabilita' fuori da [0,1]: " + probability);
+			throw new IllegalArgumentException("probability outside [0,1]: " + probability);
 		}
 		if (k < 1) {
-			throw new IllegalArgumentException("dimensione della coda non valida: " + k);
+			throw new IllegalArgumentException("invalid queue size: " + k);
 		}
 		this.activationProbability = probability;
 		this.random = (seed == null) ? new Random() : new Random(seed);
 		this.queueSize = k;
 		this.waitForService = waitForService;
 		this.queue = new ArrayBlockingQueue<Request>(k);
-		System.out.println(this.tag() + "attivazione: "
-				+ (this.isProbabilityMode() ? "probabilita' " + probability + (seed == null ? "" : " seed=" + seed) : "storico LSH")
-				+ ", coda k=" + k + (waitForService ? " con attesa" : " senza attesa"));
+		System.out.println(this.tag() + "activation: "
+				+ (this.isProbabilityMode() ? "probability " + probability + (seed == null ? "" : " seed=" + seed) : "LSH history")
+				+ ", queue k=" + k + (waitForService ? " with waiting" : " without waiting"));
 	}
 
-	// ------------------------------------------------------------------ coda
+	// ----------------------------------------------------------------- queue
 
 	@Override
 	public void runInvivoTestingSession(Context context) {
 		synchronized (this.drainerLock) {
 			if (this.drainer == Thread.currentThread()) {
-				// Richiesta generata dal test in-vivo (o dalla valutazione) in esecuzione su questo
-				// thread: va ignorata. Non si passa alla classe base: il suo lock e' rientrante,
-				// e la chiamata annidata, uscendo, lo rilascerebbe e azzererebbe la sessione in corso.
+				// Request generated by the in-vivo test (or by the evaluation) running on this
+				// thread: it must be ignored. It is not passed to the base class: its lock is reentrant,
+				// and the nested call, on exit, would release it and reset the running session.
 				return;
 			}
 		}
@@ -168,7 +168,7 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 			this.logQueueSize();
 		} else {
 			this.droppedRequests.incrementAndGet();
-			System.out.println(this.tag() + "coda piena (k=" + this.queueSize + "), richiesta scartata");
+			System.out.println(this.tag() + "queue full (k=" + this.queueSize + "), request dropped");
 			request = null;
 		}
 
@@ -180,8 +180,8 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	}
 
 	/**
-	 * Attende che la richiesta sia servita. Se nessuno sta servendo la coda, la serve il
-	 * thread corrente: la coda e' FIFO, quindi svuotandola serve anche la propria richiesta.
+	 * Waits until the request has been served. If nobody is serving the queue, the current
+	 * thread serves it: the queue is FIFO, so by draining it the thread also serves its own request.
 	 */
 	private void awaitService(Request request) {
 		while (true) {
@@ -190,8 +190,8 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 					try {
 						this.drainerLock.wait();
 					} catch (InterruptedException e) {
-						// Es. il thread di un fantasma fermato a fine partita: smette di attendere.
-						// La richiesta resta in coda e verra' servita comunque.
+						// E.g. the thread of a ghost stopped at the end of the game: it stops waiting.
+						// The request stays in the queue and will be served anyway.
 						Thread.currentThread().interrupt();
 						return;
 					}
@@ -206,15 +206,15 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	}
 
 	/**
-	 * Senza attesa: se nessun thread sta servendo la coda, la serve il thread corrente.
-	 * Il ciclo esterno evita che una richiesta accodata subito dopo l'ultimo poll()
-	 * resti in coda senza nessuno che la serva.
+	 * Without waiting: if no thread is serving the queue, the current thread serves it.
+	 * The outer loop prevents a request enqueued right after the last poll() from
+	 * staying in the queue with nobody serving it.
 	 */
 	private void drainQueue() {
 		while (!this.queue.isEmpty()) {
 			synchronized (this.drainerLock) {
 				if (this.drainer != null) {
-					return; // un altro thread sta gia' servendo la coda
+					return; // another thread is already serving the queue
 				}
 				this.drainer = Thread.currentThread();
 			}
@@ -222,7 +222,7 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 		}
 	}
 
-	/** Da chiamare dopo essere diventati il thread che serve la coda: la svuota e rinuncia al ruolo. */
+	/** To be called after becoming the thread that serves the queue: drains it and gives up the role. */
 	private void serveQueue() {
 		try {
 			Request next;
@@ -247,9 +247,9 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 	}
 
 	/**
-	 * Esegue la sessione in-vivo per una richiesta presa dalla coda. Le sottoclassi
-	 * possono ridefinirlo per preparare il Context o prendere lock dell'applicazione,
-	 * chiamando poi super.executeSession.
+	 * Runs the in-vivo session for a request taken from the queue. Subclasses may
+	 * override it to prepare the Context or take application locks, then calling
+	 * super.executeSession.
 	 */
 	protected void executeSession(Context context) {
 		this.sessionActivatedAt = -1;
@@ -257,15 +257,15 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 			super.runInvivoTestingSession(context);
 		} finally {
 			if (this.sessionActivatedAt >= 0) {
-				// Dalla decisione di attivare alla fine del rollback: checkpoint, test e rollback
-				System.out.println(this.tag() + "sessione in-vivo: durataMs="
+				// From the activation decision to the end of the rollback: checkpoint, test and rollback
+				System.out.println(this.tag() + "in-vivo session: durationMs="
 						+ String.format("%.3f", (System.nanoTime() - this.sessionActivatedAt) / 1e6));
 				this.sessionActivatedAt = -1;
 			}
 		}
 	}
 
-	/** Come la classe padre; in piu' annota l'istante dell'attivazione per misurare la durata della sessione. */
+	/** Like the parent class; it also records the activation instant to measure the duration of the session. */
 	@Override
 	public boolean evaluateActivation(Context context) {
 		boolean activated = super.evaluateActivation(context);
@@ -275,41 +275,40 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 		return activated;
 	}
 
-	// ------------------------------------------------------------- log coda
+	// ------------------------------------------------------------- queue log
 
-	/** Stampa quante richieste sono in coda: chiamato a ogni richiesta accodata e a ogni richiesta presa. */
+	/** Prints how many requests are queued: called for every enqueued request and every request taken. */
 	private void logQueueSize() {
-		System.out.println(this.tag() + "in coda: " + this.queue.size() + "/" + this.queueSize);
+		System.out.println(this.tag() + "queued: " + this.queue.size() + "/" + this.queueSize);
 	}
 
-	// ----------------------------------------------------- attivazione
+	// ------------------------------------------------------- activation
 
 	/**
-	 * In modalita' probabilistica lo stato viene comunque catturato (per stamparlo e per
-	 * scartare le chiamate che le sottoclassi non vogliono valutare), ma il server non
-	 * viene contattato.
+	 * In probability mode the state is captured anyway (to print it and to discard the
+	 * invocations that subclasses do not want to evaluate), but the server is not contacted.
 	 */
 	@Override
 	protected boolean decideActivation(String carvedState, String processedState) throws LSHException {
 		if (!this.isProbabilityMode()) {
 			return super.decideActivation(carvedState, processedState);
 		}
-		// nextDouble, come il vecchio manager di lab-jpacman: stesso seed, stesse estrazioni
+		// nextDouble, like the old lab-jpacman manager: same seed, same draws
 		boolean activated = this.random.nextDouble() < this.activationProbability.doubleValue();
-		System.out.println(this.tag() + "stato: " + carvedState + " -> attivata: " + activated
+		System.out.println(this.tag() + "state: " + carvedState + " -> activated: " + activated
 				+ " (p=" + this.activationProbability + ")");
 		return activated;
 	}
 
 	@Override
 	protected void markState(String processedState) throws LSHException {
-		// In modalita' probabilistica lo stato non viene calcolato ne' registrato sul server.
+		// In probability mode the state is neither computed nor marked on the server.
 		if (!this.isProbabilityMode()) {
 			super.markState(processedState);
 		}
 	}
 
-	// --------------------------------------------------------- utilita'
+	// ---------------------------------------------------------- utilities
 
 	public boolean isProbabilityMode() {
 		return this.activationProbability != null;
@@ -343,14 +342,14 @@ public class GovernanceManagerQueuedByHistory extends GovernanceManagerBasic {
 		return this.servedRequests.get();
 	}
 
-	/** @return una riga con i contatori della coda, per i riepiloghi degli esperimenti. */
+	/** @return a line with the queue counters, for the experiment summaries. */
 	public String queueSummary() {
-		return "k=" + this.queueSize + " attesa=" + this.waitForService + " accodate=" + this.getEnqueuedRequests() + " scartate="
-				+ this.getDroppedRequests() + " eseguite=" + this.getServedRequests() + " inAttesa="
+		return "k=" + this.queueSize + " wait=" + this.waitForService + " enqueued=" + this.getEnqueuedRequests() + " dropped="
+				+ this.getDroppedRequests() + " served=" + this.getServedRequests() + " pending="
 				+ this.getPendingRequests();
 	}
 
-	/** @return il valore dalla riga di comando (-D), altrimenti dal file di configurazione, altrimenti null. */
+	/** @return the value from the command line (-D), otherwise from the configuration file, otherwise null. */
 	private static String readParameter(String label) {
 		String value = System.getProperty(label);
 		if ((value == null) || value.trim().isEmpty()) {

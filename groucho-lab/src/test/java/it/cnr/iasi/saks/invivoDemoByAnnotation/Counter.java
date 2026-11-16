@@ -15,28 +15,30 @@
  * along with GROUCHO.  If not, see <https://www.gnu.org/licenses/>
  *
  */
-package it.cnr.iasi.saks.invivoDemoByJsonProperties;
+package it.cnr.iasi.saks.invivoDemoByAnnotation;
 
-import it.cnr.iasi.saks.invivoDemoCommon.ContatoreSottoTest;
+import it.cnr.iasi.saks.groucho.annotation.TestableInVivo;
+import it.cnr.iasi.saks.invivoDemoCommon.CounterUnderTest;
 
-/*
- * Stessa classe della demo invivoDemoByAnnotation, ma SENZA @TestableInVivo:
- * l'annotazione su incrementa_by_properties() viene aggiunta a runtime
- * dall'agent di groucho-lab, leggendo src/test/resources/invivoDemoJson/model.json.
+/**
+ * Class under test (SUT): the method annotated with @TestableInVivo, when
+ * invoked, may activate an in-vivo testing session.
  */
-public class Contatore implements ContatoreSottoTest {
+public class Counter implements CounterUnderTest {
 
 	private int valore;
 
-	public Contatore() {
+	public Counter() {
 		this.valore = 0;
 	}
 
-	public void incrementa_by_properties(int delta) {
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.CounterInvivoTest", invivoTest = "statoInvivoTest")
+	public void incrementa_annotated(int delta) {
 		this.aggiungi(delta);
 	}
 
-	public void raddoppia_by_properties() {
+	@TestableInVivo(invivoTestClass = "it.cnr.iasi.saks.invivoDemoCommon.CounterInvivoTest", invivoTest = "statoInvivoTest")
+	public void raddoppia_annotated() {
 		this.raddoppia();
 	}
 

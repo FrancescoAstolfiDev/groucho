@@ -22,7 +22,7 @@ import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClient;
 import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
- * Invia al server lo stato carvato cosi' com'e'.
+ * Sends the carved state to the server as it is.
  */
 public class GovernanceManagerBasic extends AbstractGovernanceManagerHistory {
 

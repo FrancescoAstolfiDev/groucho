@@ -36,64 +36,65 @@ import it.cnr.iasi.saks.groucho.lsh.exceptions.LSHException;
 import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
- * Test polimorfi sul contratto di {@link AbstractGovernanceManagerHistory}: ogni sottoclasse
- * concreta fornisce l'istanza da verificare tramite {@link #createGovernanceManager()} ed
- * eredita l'intera suite.
+ * Polymorphic tests on the contract of {@link AbstractGovernanceManagerHistory}: each concrete
+ * subclass provides the instance under test through {@link #createGovernanceManager()} and
+ * inherits the whole suite.
  *
- * Contratto verificato: {@code evaluateActivation} restituisce true solo se lo stato carvato
- * dal Context non e' ancora stato registrato sul server groucho-lsh-rest; una volta registrato,
- * lo stesso stato non deve piu' attivare una sessione in-vivo.
+ * Verified contract: {@code evaluateActivation} returns true only if the state carved from the
+ * Context has not been marked on the groucho-lsh-rest server yet; once marked, the same state
+ * must not activate an in-vivo session any more.
  *
- * Test di integrazione: richiedono un'istanza di groucho-lsh-rest dedicata ai test, in ascolto su
- * {@value #TEST_SERVER_URL_BASE_PATH}: se non e' gia' attiva, la suite la avvia in {@code @BeforeClass}
- * (script groucho-lab/src/test/resources/scripts/start-lsh-test-server.sh) e la spegne in {@code @AfterClass}. Lo storico
- * degli esperimenti, sul server della porta 8080, non viene mai toccato.
+ * Integration tests: they need a groucho-lsh-rest instance dedicated to the tests, listening on
+ * {@value #TEST_SERVER_URL_BASE_PATH}: if it is not running yet, the suite starts it in
+ * {@code @BeforeClass} (script groucho-lab/src/test/resources/scripts/start-lsh-test-server.sh)
+ * and stops it in {@code @AfterClass}. The experiment history, on the server on port 8080, is
+ * never touched.
  *
- * I test NON resettano il server, per non perdere gli stati gia' registrati: ogni test
- * lavora su stati che contengono valori casuali generati al momento ({@link #setUp()}),
- * quindi mai visti prima dal server. Gli stati registrati dai test restano sul server.
+ * The tests do NOT reset the server, so that the states already marked are not lost: each test
+ * works on states containing random values generated on the fly ({@link #setUp()}), hence never
+ * seen before by the server. The states marked by the tests stay on the server.
  */
 public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
-	/** Server groucho-lsh-rest dedicato ai test, separato da quello degli esperimenti (porta 8080). */
+	/** groucho-lsh-rest server dedicated to the tests, separate from the experiment one (port 8080). */
 	public static final int TEST_SERVER_PORT = 8081;
 	public static final String TEST_SERVER_URL_BASE_PATH = "http://localhost:" + TEST_SERVER_PORT + "/groucho-state-observer";
 
-	/** Script (relativo alla cartella del modulo groucho-lab) che avvia il server di test. */
+	/** Script (relative to the groucho-lab module directory) that starts the test server. */
 	private static final String TEST_SERVER_SCRIPT = "src/test/resources/scripts/start-lsh-test-server.sh";
 	private static final String TEST_SERVER_LOG = "target/lsh-test-server.log";
 	private static final long TEST_SERVER_STARTUP_TIMEOUT_MS = 120000;
 	private static final long TEST_SERVER_SHUTDOWN_TIMEOUT_MS = 15000;
 	private static final long TEST_SERVER_POLL_MS = 500;
 
-	/** Server avviato da questa suite, null se gia' attivo prima dei test (e quindi da non spegnere). */
+	/** Server started by this suite, null if it was already running before the tests (and so must not be stopped). */
 	private static Process testServerProcess = null;
 
 	private static final String INSTRUMENTED_METHOD = "instrumentedMethod";
 
 	private static final int MULTIPLE_CHECKS = 5;
 
-	/** Numero di UUID concatenati nel nonce: la parte casuale deve dominare lo stato carvato. */
+	/** Number of UUIDs concatenated in the nonce: the random part must dominate the carved state. */
 	private static final int NONCE_UUIDS = 4;
 
 	protected AbstractGovernanceManagerHistory gm;
 
-	/** Rende unico lo stato "di default" del singolo test. */
+	/** Makes the "default" state of the single test unique. */
 	private String defaultNonce;
-	/** Rende unico lo stato "diverso" del singolo test, indipendente dal precedente. */
+	/** Makes the "different" state of the single test unique, independently of the previous one. */
 	private String differentNonce;
 
 	/**
-	 * @return una nuova istanza del Governance Manager concreto da sottoporre a test
+	 * @return a new instance of the concrete Governance Manager under test
 	 */
 	protected abstract AbstractGovernanceManagerHistory createGovernanceManager();
 
 	/**
-	 * Punta i manager al server dedicato ai test, mai a quello degli esperimenti (porta 8080),
-	 * e lo avvia con {@value #TEST_SERVER_SCRIPT} se non e' gia' in ascolto. Un server gia' attivo
-	 * viene usato cosi' com'e' e non viene spento a fine suite.
-	 * Si puo' indicare un altro indirizzo con -Dgroucho.lsh.rest_client.urlBasePath=...: in quel
-	 * caso il server va avviato a mano.
+	 * Points the managers to the server dedicated to the tests, never to the experiment one
+	 * (port 8080), and starts it with {@value #TEST_SERVER_SCRIPT} if it is not listening yet.
+	 * A server that is already running is used as it is and is not stopped at the end of the suite.
+	 * Another address can be given with -Dgroucho.lsh.rest_client.urlBasePath=...: in that case
+	 * the server must be started by hand.
 	 */
 	@BeforeClass
 	public static void setUpTestServer() throws IOException, InterruptedException {
@@ -105,12 +106,12 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		if (isServerReachable(urlBasePath)) {
 			System.out.println("[" + AbstractGovernanceManagerHistoryTest_IT.class.getSimpleName()
-					+ "] server di test gia' attivo su " + urlBasePath + ": non verra' spento a fine suite");
+					+ "] test server already running on " + urlBasePath + ": it will not be stopped at the end of the suite");
 			return;
 		}
 		if (!TEST_SERVER_URL_BASE_PATH.equals(urlBasePath)) {
-			Assert.fail("Server groucho-lsh-rest di test non raggiungibile su " + urlBasePath
-					+ ": per un indirizzo personalizzato il server va avviato a mano");
+			Assert.fail("Test groucho-lsh-rest server not reachable on " + urlBasePath
+					+ ": with a custom address the server must be started by hand");
 		}
 		startTestServer();
 	}
@@ -120,20 +121,20 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		stopTestServer();
 	}
 
-	// ------------------------------------------------------- server di test
+	// ------------------------------------------------------------ test server
 
 	private static void startTestServer() throws IOException, InterruptedException {
-		// surefire e gli IDE eseguono i test dalla cartella del modulo groucho-lab
+		// surefire and the IDEs run the tests from the groucho-lab module directory
 		File moduleDir = new File(System.getProperty("user.dir"));
 		File script = new File(moduleDir, TEST_SERVER_SCRIPT);
 		if (!script.isFile()) {
-			Assert.fail("Script di avvio del server di test non trovato: " + script.getAbsolutePath());
+			Assert.fail("Start script of the test server not found: " + script.getAbsolutePath());
 		}
 		File log = new File(moduleDir, TEST_SERVER_LOG);
 		log.getParentFile().mkdirs();
 
 		System.out.println("[" + AbstractGovernanceManagerHistoryTest_IT.class.getSimpleName()
-				+ "] avvio del server di test (" + TEST_SERVER_URL_BASE_PATH + "), log: " + log.getAbsolutePath());
+				+ "] starting the test server (" + TEST_SERVER_URL_BASE_PATH + "), log: " + log.getAbsolutePath());
 		ProcessBuilder builder = new ProcessBuilder("bash", script.getAbsolutePath(), String.valueOf(TEST_SERVER_PORT));
 		builder.directory(moduleDir);
 		builder.redirectErrorStream(true);
@@ -145,7 +146,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 			if (!testServerProcess.isAlive()) {
 				int exitCode = testServerProcess.exitValue();
 				testServerProcess = null;
-				Assert.fail("Il server di test si e' chiuso durante l'avvio (exit " + exitCode + "), vedere " + log.getAbsolutePath());
+				Assert.fail("The test server exited during startup (exit " + exitCode + "), see " + log.getAbsolutePath());
 			}
 			if (isServerReachable(TEST_SERVER_URL_BASE_PATH)) {
 				return;
@@ -153,16 +154,16 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 			Thread.sleep(TEST_SERVER_POLL_MS);
 		}
 		stopTestServer();
-		Assert.fail("Il server di test non ha risposto entro " + TEST_SERVER_STARTUP_TIMEOUT_MS + " ms, vedere "
+		Assert.fail("The test server did not answer within " + TEST_SERVER_STARTUP_TIMEOUT_MS + " ms, see "
 				+ log.getAbsolutePath());
 	}
 
-	/** Spegne il server solo se e' stato avviato da questa suite. */
+	/** Stops the server only if it was started by this suite. */
 	private static void stopTestServer() throws InterruptedException {
 		if (testServerProcess == null) {
 			return;
 		}
-		// lo script fa exec di java: il processo avviato e' la JVM del server
+		// the script execs java: the started process is the server JVM itself
 		testServerProcess.destroy();
 		if (!testServerProcess.waitFor(TEST_SERVER_SHUTDOWN_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
 			testServerProcess.destroyForcibly().waitFor();
@@ -170,7 +171,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		testServerProcess = null;
 	}
 
-	/** Controllo in sola lettura: senza server ogni evaluateActivation darebbe false. */
+	/** Read-only check: without a server every evaluateActivation would return false. */
 	private static boolean isServerReachable(String urlBasePath) {
 		StateObserver probe = new StateObserverRestClientFactory(urlBasePath).getStateObserver();
 		try {
@@ -183,18 +184,18 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 	@Before
 	public void setUp() {
-		// nessun reset del server: l'isolamento e' dato da stati nuovi a ogni test
+		// no server reset: isolation comes from new states in every test
 		this.defaultNonce = randomNonce();
 		this.differentNonce = randomNonce();
 		GMHistoryDummyInvivoTest.resetInvocations();
 		this.gm = this.createGovernanceManager();
 	}
 
-	// ------------------------------------------------------------------ utilita'
+	// -------------------------------------------------------------- utilities
 
 	/**
-	 * Stringa casuale lunga: lo stato carvato di un test non deve risultare simile (per LSH)
-	 * a quelli di esecuzioni precedenti, che differirebbero solo per questa parte.
+	 * Long random string: the carved state of a test must not look similar (for LSH) to the
+	 * ones of previous runs, which would differ only in this part.
 	 */
 	private static String randomNonce() {
 		StringBuilder nonce = new StringBuilder();
@@ -209,17 +210,17 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 				GMHistoryDummyInvivoTest.class.getName(), GMHistoryDummyInvivoTest.INVIVO_TEST_METHOD);
 	}
 
-	/** Due chiamate nello stesso test restituiscono oggetti distinti con lo stesso stato. */
+	/** Two calls within the same test return distinct objects with the same state. */
 	protected GMHistoryTestClass createDefaultObject() {
 		return new GMHistoryTestClass(1, "defaultLabel_" + this.defaultNonce, true);
 	}
 
-	/** Stato volutamente molto diverso da quello di default, per non cadere nello stesso bucket LSH. */
+	/** State deliberately very different from the default one, so as not to fall into the same LSH bucket. */
 	protected GMHistoryTestClass createDifferentObject() {
 		return new GMHistoryTestClass(-987654321, "aCompletelyDifferentLabel_" + this.differentNonce, false);
 	}
 
-	/** Registra sul server lo stato del Context, passando dalla stessa rappresentazione usata dal manager. */
+	/** Marks the state of the Context on the server, through the same representation used by the manager. */
 	protected void markContextState(AbstractGovernanceManagerHistory manager, Context context)
 			throws ClassNotFoundException, LSHException {
 		String carvedState = new StateCarver(context).carveAllFields();
@@ -240,7 +241,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		boolean condition = this.gm.evaluateActivation(context);
 
-		Assert.assertTrue("Uno stato mai registrato deve attivare la sessione", condition);
+		Assert.assertTrue("A state never marked must activate the session", condition);
 	}
 
 	@Test
@@ -250,7 +251,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		boolean condition = this.gm.evaluateActivation(context);
 
-		Assert.assertFalse("Uno stato gia' registrato non deve attivare la sessione", condition);
+		Assert.assertFalse("An already marked state must not activate the session", condition);
 	}
 
 	@Test
@@ -260,7 +261,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		for (int i = 0; i < MULTIPLE_CHECKS; i++) {
 			boolean condition = this.gm.evaluateActivation(context);
-			Assert.assertFalse("Controllo n." + i + ": lo stato registrato non deve attivare la sessione", condition);
+			Assert.assertFalse("Check #" + i + ": the marked state must not activate the session", condition);
 		}
 	}
 
@@ -269,15 +270,15 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		Context context = this.createContext(this.createDefaultObject());
 
 		boolean firstEvaluation = this.gm.evaluateActivation(context);
-		Assert.assertTrue("Prima valutazione: lo stato e' nuovo", firstEvaluation);
+		Assert.assertTrue("First evaluation: the state is new", firstEvaluation);
 
-		// la sessione in-vivo esegue il test e, al termine, registra lo stato appena valutato
+		// the in-vivo session runs the test and, at the end, marks the state just evaluated
 		this.gm.doInvivoTestingSession(context);
-		Assert.assertEquals("Il test in-vivo deve essere stato eseguito una volta", 1,
+		Assert.assertEquals("The in-vivo test must have been run once", 1,
 				GMHistoryDummyInvivoTest.getInvocations());
 
 		boolean secondEvaluation = this.gm.evaluateActivation(context);
-		Assert.assertFalse("Dopo la sessione lo stato e' noto e non deve riattivarla", secondEvaluation);
+		Assert.assertFalse("After the session the state is known and must not activate it again", secondEvaluation);
 	}
 
 	@Test
@@ -286,7 +287,7 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		for (int i = 0; i < MULTIPLE_CHECKS; i++) {
 			boolean condition = this.gm.evaluateActivation(context);
-			Assert.assertTrue("Controllo n." + i + ": la sola valutazione non deve registrare lo stato", condition);
+			Assert.assertTrue("Check #" + i + ": evaluating alone must not mark the state", condition);
 		}
 	}
 
@@ -295,11 +296,11 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		Context markedContext = this.createContext(this.createDefaultObject());
 		this.markContextState(this.gm, markedContext);
 
-		// istanza diversa ma con gli stessi valori: lo storico e' basato sullo stato, non sull'identita'
+		// different instance with the same values: the history is based on the state, not on identity
 		Context equivalentContext = this.createContext(this.createDefaultObject());
 		boolean condition = this.gm.evaluateActivation(equivalentContext);
 
-		Assert.assertFalse("Un oggetto con lo stesso stato non deve attivare la sessione", condition);
+		Assert.assertFalse("An object with the same state must not activate the session", condition);
 	}
 
 	@Test
@@ -309,10 +310,10 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 
 		Context differentContext = this.createContext(this.createDifferentObject());
 		boolean differentCondition = this.gm.evaluateActivation(differentContext);
-		Assert.assertTrue("Uno stato diverso da quelli registrati deve attivare la sessione", differentCondition);
+		Assert.assertTrue("A state different from the marked ones must activate the session", differentCondition);
 
 		boolean markedCondition = this.gm.evaluateActivation(markedContext);
-		Assert.assertFalse("Lo stato registrato resta noto", markedCondition);
+		Assert.assertFalse("The marked state stays known", markedCondition);
 	}
 
 	@Test
@@ -327,9 +328,9 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		instrumentedObject.setLabel(different.getLabel());
 		instrumentedObject.setFlag(different.isFlag());
 
-		// stesso Context e stesso oggetto: lo stato viene carvato a ogni valutazione
+		// same Context and same object: the state is carved at every evaluation
 		boolean condition = this.gm.evaluateActivation(context);
-		Assert.assertTrue("Dopo la modifica l'oggetto e' in uno stato nuovo", condition);
+		Assert.assertTrue("After the change the object is in a new state", condition);
 	}
 
 	@Test
@@ -337,11 +338,11 @@ public abstract class AbstractGovernanceManagerHistoryTest_IT {
 		Context context = this.createContext(this.createDefaultObject());
 		this.markContextState(this.gm, context);
 
-		// lo storico vive sul server, non nell'istanza del manager
+		// the history lives on the server, not in the manager instance
 		AbstractGovernanceManagerHistory anotherGm = this.createGovernanceManager();
 		boolean condition = anotherGm.evaluateActivation(context);
 
-		Assert.assertFalse("Un altro manager dello stesso tipo deve vedere lo stato gia' registrato", condition);
+		Assert.assertFalse("Another manager of the same type must see the already marked state", condition);
 	}
 
 	@Test

@@ -20,25 +20,25 @@ package it.cnr.iasi.saks.invivoDemoCommon;
 import it.cnr.iasi.saks.groucho.common.Context;
 
 /**
- * Set unico di test in-vivo sullo stato di un Contatore: la sessione viene attivata
- * da uno stato nuovo, qualunque sia il metodo annotato che lo ha intercettato, e
- * verifica sempre invarianti e operazioni. Le modifiche fatte qui vengono annullate
- * dal rollback di CROCHET a fine sessione.
+ * Single set of in-vivo tests on the state of a Counter: the session is activated
+ * by a new state, whatever annotated method intercepted it, and it always checks
+ * invariants and operations. The changes made here are undone by the CROCHET
+ * rollback at the end of the session.
  */
-public class ContatoreInvivoTest {
+public class CounterInvivoTest {
 
 	private static final int DELTA = 1;
 
 	public void statoInvivoTest(Context c) {
-		ContatoreSottoTest contatore = (ContatoreSottoTest) c.getInstrumentedObject();
+		CounterUnderTest contatore = (CounterUnderTest) c.getInstrumentedObject();
 		int statoOsservato = contatore.getValore();
 
-		// Prima gli invarianti, perche' le operazioni modificano lo stato osservato.
+		// Invariants first, because the operations change the observed state.
 		report("valoreNonNegativo", valoreNonNegativo(statoOsservato));
 		report("statoIntero", statoIntero(contatore));
 
 		report("aggiungi", aggiungi(contatore, statoOsservato));
-		// Il rollback arriva solo a fine sessione: raddoppia deve partire dallo stato osservato.
+		// The rollback comes only at the end of the session: raddoppia must start from the observed state.
 		contatore.aggiungi(statoOsservato - contatore.getValore());
 		report("raddoppia", raddoppia(contatore, statoOsservato));
 	}
@@ -47,7 +47,7 @@ public class ContatoreInvivoTest {
 		return valore >= 0;
 	}
 
-	private boolean statoIntero(ContatoreSottoTest contatore) {
+	private boolean statoIntero(CounterUnderTest contatore) {
 		try {
 			return contatore.getClass().getDeclaredField("valore").getType() == int.class;
 		} catch (NoSuchFieldException e) {
@@ -55,18 +55,18 @@ public class ContatoreInvivoTest {
 		}
 	}
 
-	private boolean aggiungi(ContatoreSottoTest contatore, int prima) {
+	private boolean aggiungi(CounterUnderTest contatore, int prima) {
 		contatore.aggiungi(DELTA);
 		return contatore.getValore() == prima + DELTA;
 	}
 
-	private boolean raddoppia(ContatoreSottoTest contatore, int prima) {
+	private boolean raddoppia(CounterUnderTest contatore, int prima) {
 		contatore.raddoppia();
 		return contatore.getValore() == prima * 2;
 	}
 
-	// L'esito sopravvive al rollback solo se scritto fuori dalla heap.
+	// The outcome survives the rollback only if written outside the heap.
 	private void report(String check, boolean esito) {
-		System.out.println("[ContatoreInvivoTest] " + check + ": " + esito);
+		System.out.println("[CounterInvivoTest] " + check + ": " + esito);
 	}
 }

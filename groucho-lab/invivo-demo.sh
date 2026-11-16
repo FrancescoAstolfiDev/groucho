@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# Lancia it.cnr.iasi.saks.invivoDemoByAnnotation.InvivoDemoMain sulla JRE di CROCHET con
-# gli stessi argomenti usati da failsafe nel pom radice.
+# Runs it.cnr.iasi.saks.invivoDemoByAnnotation.InvivoDemoMain on the CROCHET JRE with
+# the same arguments used by failsafe in the root pom.
 #
-#   ./invivo-demo.sh           esecuzione normale
-#   ./invivo-demo.sh debug     la JVM si ferma e attende un debugger su localhost:5005
+#   ./invivo-demo.sh           normal run
+#   ./invivo-demo.sh debug     the JVM stops and waits for a debugger on localhost:5005
 #                              (IntelliJ: Run > Edit Configurations > Remote JVM Debug)
 #
-# Prerequisito (con Java 8): mvn install -pl groucho-core,lsh-invivo,groucho-lsh-rest,groucho-lab -DskipTests
-# Il Governance Manager e' indicato nel file .properties: groucho-lsh-rest deve essere in esecuzione.
+# Prerequisite (with Java 8): mvn install -pl groucho-core,lsh-invivo,groucho-lsh-rest,groucho-lab -DskipTests
+# The Governance Manager is set in the .properties file: groucho-lsh-rest must be running.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CROCHET="$ROOT/groucho-crochet/target"
@@ -17,7 +17,7 @@ LAB="$ROOT/groucho-lab/target"
 CRIJ_JAR="$CROCHET/CRIJ-0.0.1-SNAPSHOT.jar"
 CORE_JAR="$CORE/groucho-core-1.0-SNAPSHOT.jar"
 JACKSON="$LAB/dependency/jackson-databind-2.11.0.jar:$LAB/dependency/jackson-core-2.11.0.jar:$LAB/dependency/jackson-annotations-2.11.0.jar"
-# Client REST di groucho-lsh-rest e sue dipendenze, usati dai Governance Manager
+# groucho-lsh-rest REST client and its dependencies, used by the Governance Managers
 LSH_CLIENT="$ROOT/groucho-lsh-rest/target/groucho-lsh-rest-1.0-SNAPSHOT.jar:$ROOT/lsh-invivo/target/lsh-invivo-1.0-SNAPSHOT.jar"
 for dep in spring-web-5.2.5.RELEASE spring-core-5.2.5.RELEASE spring-beans-5.2.5.RELEASE spring-jcl-5.2.5.RELEASE threetenbp-1.3.1 jackson-datatype-threetenbp-2.6.4; do
 	LSH_CLIENT="$LSH_CLIENT:$LAB/dependency/$dep.jar"

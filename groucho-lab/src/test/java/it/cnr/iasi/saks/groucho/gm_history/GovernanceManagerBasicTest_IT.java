@@ -23,8 +23,8 @@ import org.junit.Test;
 import it.cnr.iasi.saks.groucho.common.StateCarver;
 
 /**
- * Esegue la suite di {@link AbstractGovernanceManagerHistoryTest_IT} su {@link GovernanceManagerBasic},
- * che invia al server lo stato carvato cosi' com'e'.
+ * Runs the {@link AbstractGovernanceManagerHistoryTest_IT} suite on {@link GovernanceManagerBasic},
+ * which sends the carved state to the server as it is.
  */
 public class GovernanceManagerBasicTest_IT extends AbstractGovernanceManagerHistoryTest_IT {
 

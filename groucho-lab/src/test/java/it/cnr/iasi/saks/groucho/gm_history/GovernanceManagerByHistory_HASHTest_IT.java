@@ -23,9 +23,9 @@ import org.junit.Test;
 import it.cnr.iasi.saks.groucho.common.StateCarver;
 
 /**
- * Esegue la suite di {@link AbstractGovernanceManagerHistoryTest_IT} su
- * {@link GovernanceManagerByHistory_HASH}, che invia agli endpoint LSH un hash FNV-1a a 64 bit
- * dello stato carvato. In piu' verifica le proprieta' dell'hash.
+ * Runs the {@link AbstractGovernanceManagerHistoryTest_IT} suite on
+ * {@link GovernanceManagerByHistory_HASH}, which sends a 64-bit FNV-1a hash of the carved state
+ * to the LSH endpoints. It also checks the properties of the hash.
  */
 public class GovernanceManagerByHistory_HASHTest_IT extends AbstractGovernanceManagerHistoryTest_IT {
 
@@ -38,7 +38,7 @@ public class GovernanceManagerByHistory_HASHTest_IT extends AbstractGovernanceMa
 
 	@Test
 	public void processStateKnownVectorsTest() {
-		// vettori di riferimento dell'algoritmo FNV-1a a 64 bit
+		// reference vectors of the 64-bit FNV-1a algorithm
 		Assert.assertEquals("cbf29ce484222325", this.gm.processState(""));
 		Assert.assertEquals("af63dc4c8601ec8c", this.gm.processState("a"));
 		Assert.assertEquals("85944171f73967e8", this.gm.processState("foobar"));
@@ -50,7 +50,7 @@ public class GovernanceManagerByHistory_HASHTest_IT extends AbstractGovernanceMa
 
 		String processedState = this.gm.processState(carvedState);
 
-		Assert.assertTrue("Hash non valido: " + processedState, processedState.matches(HEX_64_BIT_REGEX));
+		Assert.assertTrue("Invalid hash: " + processedState, processedState.matches(HEX_64_BIT_REGEX));
 	}
 
 	@Test

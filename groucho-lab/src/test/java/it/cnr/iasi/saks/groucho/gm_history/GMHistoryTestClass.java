@@ -18,11 +18,11 @@
 package it.cnr.iasi.saks.groucho.gm_history;
 
 /**
- * Oggetto "instrumentato" usato dai test dei Governance Manager basati sulla storia:
- * il suo stato viene carvato dallo StateCarver e inviato al server groucho-lsh-rest.
+ * "Instrumented" object used by the tests of the history-based Governance Managers:
+ * its state is carved by the StateCarver and sent to the groucho-lsh-rest server.
  *
- * I campi sono solo primitivi e stringhe, cosi' lo stato carvato con profondita' 1
- * dipende unicamente dai valori impostati dal test.
+ * The fields are only primitives and strings, so the state carved with depth 1
+ * depends only on the values set by the test.
  */
 public class GMHistoryTestClass {
 

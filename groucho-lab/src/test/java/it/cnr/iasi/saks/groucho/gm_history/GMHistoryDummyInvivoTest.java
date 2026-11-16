@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import it.cnr.iasi.saks.groucho.common.Context;
 
 /**
- * Test in-vivo fittizio invocato per riflessione dal SimpleGovernanceManager.
- * Conta le invocazioni, cosi' i test possono verificare che la sessione sia stata eseguita.
+ * Dummy in-vivo test invoked by reflection by the SimpleGovernanceManager.
+ * It counts its invocations, so the tests can check that the session has been run.
  */
 public class GMHistoryDummyInvivoTest {
 

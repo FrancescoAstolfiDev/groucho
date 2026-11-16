@@ -22,7 +22,7 @@ import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverLSHRestClient;
 import it.cnr.iasi.saks.groucho.lsh.rest_client.StateObserverRestClientFactory;
 
 /**
- * Invia al server, tramite gli endpoint LSH, un hash dello stato carvato calcolato lato client.
+ * Sends to the server, through the LSH endpoints, a hash of the carved state computed on the client side.
  */
 public class GovernanceManagerByHistory_HASH extends AbstractGovernanceManagerHistory {
 
@@ -35,9 +35,9 @@ public class GovernanceManagerByHistory_HASH extends AbstractGovernanceManagerHi
 	}
 
 	/**
-	 * Calcola un hash FNV-1a a 64 bit dello stato. Il valore e' stabile fra JVM
-	 * diverse, perche' il server conserva su disco gli stati visti, e contiene solo
-	 * cifre esadecimali, quindi puo' viaggiare nel path degli endpoint LSH.
+	 * Computes a 64-bit FNV-1a hash of the state. The value is stable across different
+	 * JVMs, which matters because the server stores the seen states on disk, and it
+	 * contains only hexadecimal digits, so it can travel in the path of the LSH endpoints.
 	 */
 	@Override
 	protected String processState(String carvedState) {

@@ -22,18 +22,18 @@ public class InvivoDemoJsonMain {
 	private static final int NUM_INCREMENTI = 10;
 
 	public static void main(String[] args) throws NoSuchMethodException {
-		boolean annotato = Contatore.class.getMethod("incrementa_by_properties", int.class)
+		boolean annotato = Counter.class.getMethod("incrementa_by_properties", int.class)
 				.isAnnotationPresent(it.cnr.iasi.saks.groucho.annotation.TestableInVivo.class);
-		System.out.println("incrementa_by_properties() annotato dal JSON: " + annotato);
+		System.out.println("incrementa_by_properties() annotated by the JSON: " + annotato);
 
-		Contatore contatore = new Contatore();
+		Counter counter = new Counter();
 		for (int delta = 0; delta < NUM_INCREMENTI; delta++) {
-			System.out.println("Prima di incrementa_by_properties(" + delta + "): " + contatore.getValore());
-			contatore.incrementa_by_properties(delta);
-			System.out.println("Dopo incrementa_by_properties(" + delta + "): " + contatore.getValore());
-			System.out.println("Prima di raddoppia_by_properties(): " + contatore.getValore());
-			contatore.raddoppia_by_properties();
-			System.out.println("Dopo raddoppia_by_properties(): " + contatore.getValore());
+			System.out.println("Before incrementa_by_properties(" + delta + "): " + counter.getValore());
+			counter.incrementa_by_properties(delta);
+			System.out.println("After incrementa_by_properties(" + delta + "): " + counter.getValore());
+			System.out.println("Before raddoppia_by_properties(): " + counter.getValore());
+			counter.raddoppia_by_properties();
+			System.out.println("After raddoppia_by_properties(): " + counter.getValore());
 		}
 	}
 }
