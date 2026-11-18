@@ -1,0 +1,21 @@
+{
+  "lst" : [ {
+    "className" : "nl.tudelft.jpacman.game.Game",
+    "methodName" : "move",
+    "annotation" : {
+      "invivoTestClass" : "it.cnr.iasi.saks.groucho.demoPacman.PacmanInvivoTestClass",
+      "invivoTest" : "invivoTestMethod",
+      "carvingDepth" : 1,
+      "pauseOtherThreads" : false
+    }
+  }, {
+    "className" : "nl.tudelft.jpacman.level.Level",
+    "methodName" : "move",
+    "annotation" : {
+      "invivoTestClass" : "it.cnr.iasi.saks.groucho.demoPacman.PacmanInvivoTestClass",
+      "invivoTest" : "invivoTestMethod",
+      "carvingDepth" : 1,
+      "pauseOtherThreads" : false
+    }
+  } ]
+}

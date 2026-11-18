@@ -156,6 +156,13 @@
 			<artifactId>oscache</artifactId>
 			<version>2.1.1</version>
 		</dependency>
+		<!-- JPacman (subject of the demoPacman in-vivo tests): installed in the data-local repository -->
+		<dependency>
+			<groupId>nl.tudelft.jpacman</groupId>
+			<artifactId>jpacman-framework</artifactId>
+			<version>8.1.1</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.jcs</groupId>
@@ -309,6 +316,7 @@
 						<exclude>it.cnr.iasi.saks.groucho.lab.instrument.test.experiments.fastjson.**</exclude>
 						<exclude>it.cnr.iasi.saks.groucho.lab.instrument.test.json.**</exclude>
 						<exclude>com.alibaba.json.bvt.**</exclude>
+						<exclude>it.cnr.iasi.saks.groucho.demoPacman.**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -329,6 +337,7 @@
 				<configuration>
 					<excludes>
 						<exclude>it.cnr.iasi.saks.groucho.lab.instrument.test.experiments.**</exclude>
+						<exclude>it.cnr.iasi.saks.groucho.demoPacman.**</exclude>
 					</excludes>
 					<reuseForks>false</reuseForks>
 					<useUnlimitedThreads>true</useUnlimitedThreads>
@@ -577,6 +586,58 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<!-- JPacman: checks that groucho-lab annotates the methods listed in demopacman/model.json -->
+		<profile>
+			<id>pacmanProfile</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${maven-surefire.version}</version>
+						<configuration>
+							<skipTests>true</skipTests>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>2.19.1</version>
+						<executions>
+							<execution>
+								<id>pacman</id>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+								<configuration>
+									<test>it.cnr.iasi.saks.groucho.demoPacman.PacmanAnnotationTest_IT</test>
+									<reuseForks>false</reuseForks>
+									<useUnlimitedThreads>true</useUnlimitedThreads>
+									<jvm>${groucho-crochet.build.directory}/jre-inst/bin/java</jvm>
+									<argLine>
+										-Xmx4G
+										-agentpath:${groucho-crochet.build.directory}/libtagging.so
+										-javaagent:${groucho-crochet.build.directory}/${groucho-crochet.build.finalName}.jar
+										-Xbootclasspath/p:${groucho-crochet.build.directory}/${groucho-crochet.build.finalName}.jar
+										@{argLine}
+										-javaagent:${groucho-lab.build.directory}/${groucho-lab.build.finalName}.jar
+										-Xbootclasspath/p:${groucho-lab.build.depencenciesDirectory}
+										-javaagent:${groucho-core.build.directory}/${groucho-core.build.finalName}.jar
+										-Dgroucho.config.file.location=${groucho-lab.build.directory}/../src/test/resources/demoPacman/testingConfPacman.properties
+									</argLine>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 		<!--  -->
 		<profile>
 			<id>jacocoCoverageExperimentProfile</id>
