@@ -628,6 +628,7 @@
 										-javaagent:${groucho-lab.build.directory}/${groucho-lab.build.finalName}.jar
 										-Xbootclasspath/p:${groucho-lab.build.depencenciesDirectory}
 										-javaagent:${groucho-core.build.directory}/${groucho-core.build.finalName}.jar
+										-Xbootclasspath/p:${groucho-core.build.directory}/${groucho-core.build.finalName}.jar:${groucho-core.build.directory}/asm-all-5.0.3.jar
 										-Dgroucho.config.file.location=${groucho-lab.build.directory}/../src/test/resources/demoPacman/testingConfPacman.properties
 									</argLine>
 								</configuration>
