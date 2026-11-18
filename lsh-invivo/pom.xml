@@ -60,7 +60,7 @@
 
 		<org-codehaus-mojo.version>1.6.0</org-codehaus-mojo.version>
 
-		<jep-version>3.9.0</jep-version>
+		<jep-version>4.3.2</jep-version>
 		<jep-path>${project.build.directory}/jep</jep-path>
 		<xxhash-path>${project.build.directory}/xxhash</xxhash-path>		
 		<jep-inst-path>${project.build.directory}/jep-inst</jep-inst-path>
@@ -162,7 +162,7 @@
 <!-- It looks that "-b" option became DEPRECATED with PIP version 20.2 (2020-07-29) -->                            
 <!-- 								<argument>-b${jep-path}</argument> -->
 								<argument>-t${jep-inst-path}</argument>
-								<argument>jep</argument>
+								<argument>jep==${jep-version}</argument>
 							</arguments>
 						</configuration>
 					</execution>
@@ -204,6 +204,8 @@
 					</execution>
 				</executions>
 				<configuration>
+<!-- 					The JEP interpreter is static and bound to the thread that created it: run each test class in a fresh JVM -->
+					<reuseForks>false</reuseForks>
 					<environmentVariables>
 						<PYTHONPATH>${jep-inst-path}/:$PYTHONPATH</PYTHONPATH>
 					</environmentVariables>
