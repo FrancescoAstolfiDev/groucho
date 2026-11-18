@@ -58,6 +58,13 @@ jobs:
       - name: Build and test
         run: mvn -B -ntp clean install
 
+      # JPacman tests (pacmanProfile of groucho-lab: PacmanAnnotationTest_IT checks that the methods of
+      # demoPacman/model.json have been annotated). Only on the feature/pacman branch and on pull requests
+      # from it, so the step is skipped on master even after a merge.
+      - name: JPacman annotation tests (pacmanProfile)
+        if: github.ref_name == 'feature/pacman' || github.head_ref == 'feature/pacman'
+        run: mvn -B -ntp -PpacmanProfile verify -pl groucho-lab
+
       # Same as the Travis "after_success" step: JaCoCo coverage aggregated in groucho-sonar
       # (carving state tests are excluded there as well). SonarCloud upload is skipped: it needs the IASI-SAKS token
       - name: Coverage (qaProfile, as in .travis.yml)
